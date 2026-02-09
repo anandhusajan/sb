@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const stats = [
-    { label: "Projects Completed", value: 100, suffix: "+" },
+    { label: "Projects Shipped", value: 100, suffix: "+" },
     { label: "Happy Clients", value: 500, suffix: "+" },
     { label: "Global Reach", value: 1.2, suffix: "M+" },
-    { label: "Years Experience", value: 5, suffix: "+" },
+    { label: "Years Excellence", value: 5, suffix: "+" },
 ];
 
 const Counter = ({ from, to, duration }: { from: number; to: number; duration: number }) => {
@@ -31,35 +31,34 @@ const Counter = ({ from, to, duration }: { from: number; to: number; duration: n
 
 export function Stats() {
     return (
-        <section className="py-20 bg-muted/30 border-y border-border">
+        <section className="relative py-24 bg-background overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/20 rounded-full blur-[100px] -z-10" />
+
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {stats.map((stat, index) => (
                         <motion.div
                             key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ delay: index * 0.1, duration: 0.5 }}
-                            className="p-6 rounded-2xl bg-background/50 backdrop-blur-sm border border-border/50 hover:shadow-lg transition-shadow"
+                            className="relative group p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md overflow-hidden hover:border-primary/50 transition-colors duration-500"
                         >
-                            <h3 className="text-4xl md:text-5xl font-bold font-heading text-primary mb-2">
-                                <Counter from={0} to={stat.value} duration={2} />{stat.suffix}
-                            </h3>
-                            <p className="text-muted-foreground font-medium">{stat.label}</p>
+                            {/* Shimmer Effect */}
+                            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent z-0" />
+
+                            <div className="relative z-10 text-center">
+                                <h3 className="text-4xl md:text-5xl font-bold font-heading text-white mb-2 tracking-tight">
+                                    <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
+                                        <Counter from={0} to={stat.value} duration={2} />{stat.suffix}
+                                    </span>
+                                </h3>
+                                <p className="text-sm font-medium text-zinc-400 uppercase tracking-widest">{stat.label}</p>
+                            </div>
                         </motion.div>
                     ))}
-                </div>
-
-                {/* Logos could go here */}
-                <div className="mt-16 text-center">
-                    <p className="text-sm text-muted-foreground mb-6 uppercase tracking-wider">Trusted by industry leaders</p>
-                    <div className="flex flex-wrap justify-center gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                        {/* Placeholder for logos - using text for now or simple circles */}
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i} className="h-8 w-32 bg-foreground/10 rounded animate-pulse" />
-                        ))}
-                    </div>
                 </div>
             </div>
         </section>

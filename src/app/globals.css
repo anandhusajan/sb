@@ -3,22 +3,22 @@
 @theme {
   --font-sans: var(--font-inter);
   --font-heading: var(--font-outfit);
-  
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-  
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -29,93 +29,141 @@
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-  --animate-fade-in: fade-in 0.5s ease-out;
-  --animate-fade-up: fade-up 0.5s ease-out;
-  
+  --animate-spotlight: spotlight 2s ease .75s 1 forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-meteor: meteor 5s linear infinite;
+  --animate-marquee: marquee 25s linear infinite;
+  --animate-marquee2: marquee2 25s linear infinite;
+
   @keyframes accordion-down {
-    from { height: 0 }
-    to { height: var(--radix-accordion-content-height) }
+    from {
+      height: 0
+    }
+
+    to {
+      height: var(--radix-accordion-content-height)
+    }
   }
+
   @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height) }
-    to { height: 0 }
+    from {
+      height: var(--radix-accordion-content-height)
+    }
+
+    to {
+      height: 0
+    }
   }
-  @keyframes fade-in {
-    from { opacity: 0 }
-    to { opacity: 1 }
+
+  @keyframes spotlight {
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
   }
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(10px) }
-    to { opacity: 1; transform: translateY(0) }
+
+  @keyframes shimmer {
+    from {
+      background-position: 0 0
+    }
+
+    to {
+      background-position: -200% 0
+    }
+  }
+
+  @keyframes meteor {
+    0% {
+      transform: rotate(215deg) translateX(0);
+      opacity: 1;
+    }
+
+    70% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: rotate(215deg) translateX(-500px);
+      opacity: 0;
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes marquee2 {
+    0% {
+      transform: translateX(100%);
+    }
+
+    100% {
+      transform: translateX(0%);
+    }
   }
 }
 
 :root {
-  --background: 255 255 255; /* White */
-  --foreground: 10 10 10; /* Near Black */
+  /* Cyber Dark Theme Default */
+  --background: #030712;
+  --foreground: #ffffff;
 
-  --primary: 99 102 241; /* Indigo 500 */
-  --primary-foreground: 255 255 255;
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
 
-  --secondary: 244 244 245; /* Zinc 100 */
-  --secondary-foreground: 24 24 27; /* Zinc 900 */
+  --secondary: #111827;
+  --secondary-foreground: #ffffff;
 
-  --muted: 244 244 245; /* Zinc 100 */
-  --muted-foreground: 113 113 122; /* Zinc 500 */
+  --muted: #111827;
+  --muted-foreground: #9ca3af;
 
-  --accent: 250 250 250; /* Zinc 50 */
-  --accent-foreground: 24 24 27; /* Zinc 900 */
+  --accent: #1e293b;
+  --accent-foreground: #ffffff;
 
-  --destructive: 239 68 68; /* Red 500 */
-  --destructive-foreground: 255 255 255;
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
 
-  --border: 228 228 231; /* Zinc 200 */
-  --input: 228 228 231; /* Zinc 200 */
-  --ring: 99 102 241; /* Indigo 500 */
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #6366f1;
 
-  --radius: 0.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: 10 10 10; /* Near Black */
-    --foreground: 250 250 250; /* Near White */
-
-    --primary: 129 140 248; /* Indigo 400 */
-    --primary-foreground: 255 255 255;
-
-    --secondary: 39 39 42; /* Zinc 800 */
-    --secondary-foreground: 250 250 250;
-
-    --muted: 39 39 42; /* Zinc 800 */
-    --muted-foreground: 161 161 170; /* Zinc 400 */
-
-    --accent: 39 39 42; /* Zinc 800 */
-    --accent-foreground: 250 250 250;
-
-    --destructive: 127 29 29; /* Red 900 */
-    --destructive-foreground: 250 250 250;
-
-    --border: 39 39 42; /* Zinc 800 */
-    --input: 39 39 42; /* Zinc 800 */
-    --ring: 129 140 248; /* Indigo 400 */
-  }
+  --radius: 0.75rem;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground selection:bg-primary/30 selection:text-white;
   }
 }
 
-/* Custom Utilities for Premium effects */
+/* Premium Utilities */
 @utility glass {
-  @apply bg-background/80 backdrop-blur-md border border-white/20;
+  @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-2xl;
 }
 
-@utility text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600;
+@utility glass-card {
+  @apply bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-lg border border-white/10 hover:border-white/20 transition-all duration-300;
+}
+
+@utility text-glow {
+  filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.5));
+}
+
+@utility text-gradient-cyber {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400;
 }
