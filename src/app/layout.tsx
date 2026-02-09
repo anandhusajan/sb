@@ -3,6 +3,7 @@ import { Inter, Outfit } from "next/font/google"; // Using Inter for body, Outfi
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/json-ld";
+import { SmoothScroll } from "@/components/layout/smooth-scroll";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -55,8 +56,10 @@ export default function RootLayout({
           outfit.variable
         )}
       >
+        <SmoothScroll>
+          {children}
+        </SmoothScroll>
         <JsonLd />
-        {children}
       </body>
     </html>
   );

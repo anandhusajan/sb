@@ -1,88 +1,87 @@
 "use client";
 
-import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
-import { Code, Smartphone, PenTool, Search, MessageCircle, Database, GraduationCap, TrendingUp } from "lucide-react";
-import { MouseEvent } from "react";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { useRef } from "react";
+import { Code, Smartphone, PenTool, Database } from "lucide-react";
 
 const services = [
-    { icon: Code, title: "Web Development", description: "High-performance, scalable web applications built with Next.js and React." },
-    { icon: Smartphone, title: "App Development", description: "Native and cross-platform mobile solutions for iOS and Android." },
-    { icon: PenTool, title: "UI/UX Design", description: "User-centric design systems that drive engagement and conversion." },
-    { icon: Search, title: "SEO Mastery", description: "Advanced technical SEO to dominate search rankings and drive organic traffic." },
-    { icon: MessageCircle, title: "WhatsApp Business", description: "Automated customer engagement via official WhatsApp API integration." },
-    { icon: Database, title: "Custom Software", description: "Tailored enterprise solutions to streamline intricate business processes." },
-    { icon: TrendingUp, title: "Digital Growth", description: "Data-driven marketing strategies to accelerate brand visibility." },
-    { icon: GraduationCap, title: "EdTech Solutions", description: "Comprehensive LMS and e-learning platforms for modern education." },
+    {
+        title: "Web Development",
+        description: "Scalable, high-performance web applications built with modern frameworks and best practices. We ensure speed, security, and SEO dominance.",
+        icon: Code,
+        color: "bg-indigo-500"
+    },
+    {
+        title: "Mobile Solutions",
+        description: "Native and cross-platform mobile apps that deliver seamless user experiences. From iOS to Android, we cover the entire mobile ecosystem.",
+        icon: Smartphone,
+        color: "bg-purple-500"
+    },
+    {
+        title: "UI/UX Design",
+        description: "User-centric design systems that drive engagement. We craft intuitive interfaces that not only look beautiful but perform exceptionally well.",
+        icon: PenTool,
+        color: "bg-emerald-500"
+    },
+    {
+        title: "Custom Software",
+        description: "Tailored enterprise solutions to streamline intricate business processes. We solve complex problems with elegant, custom-built software.",
+        icon: Database,
+        color: "bg-pink-500"
+    },
 ];
 
-function ServiceCard({ service }: { service: typeof services[0] }) {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
+const Card = ({ i, service, progress, range, targetScale }: { i: number, service: typeof services[0], progress: MotionValue<number>, range: number[], targetScale: number }) => {
+    const container = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: container,
+        offset: ['start end', 'start start']
+    })
 
-    function handleMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
-        const { left, top } = currentTarget.getBoundingClientRect();
-        mouseX.set(clientX - left);
-        mouseY.set(clientY - top);
-    }
+    const scale = useTransform(progress, range, [1, targetScale]);
 
     return (
-        <div
-            className="group relative border border-white/10 bg-zinc-900/50 px-8 py-10 rounded-2xl overflow-hidden"
-            onMouseMove={handleMouseMove}
-        >
+        <div ref={container} className="h-screen flex items-center justify-center sticky top-0">
             <motion.div
-                className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
-                style={{
-                    background: useMotionTemplate`
-            radial-gradient(
-              650px circle at ${mouseX}px ${mouseY}px,
-              rgba(99, 102, 241, 0.15),
-              transparent 80%
-            )
-          `,
-                }}
-            />
+                style={{ scale, top: `calc(-5vh + ${i * 25}px)` }}
+                className="flex flex-col relative -top-[25%] h-[450px] w-[80vw] md:w-[800px] rounded-3xl p-10 origin-top bg-zinc-900 border border-white/10 shadow-2xl overflow-hidden"
+            >
+                <div className={`absolute top-0 right-0 p-12 opacity-10 ${service.color} blur-[80px] w-64 h-64 rounded-full`} />
 
-            <div className="relative mb-6 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-800/50 border border-white/5 group-hover:bg-indigo-500/20 group-hover:border-indigo-500/50 transition-colors duration-300">
-                <service.icon className="h-6 w-6 text-zinc-400 group-hover:text-indigo-400 transition-colors duration-300" />
-            </div>
-
-            <h3 className="mb-3 text-xl font-bold text-white group-hover:text-indigo-300 transition-colors duration-300">
-                {service.title}
-            </h3>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-                {service.description}
-            </p>
+                <div className="flex gap-6 items-start h-full">
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${service.color} text-white shadow-lg`}>
+                        <service.icon className="w-8 h-8" />
+                    </div>
+                    <div className="flex flex-col justify-between h-full flex-1">
+                        <div>
+                            <h2 className="text-4xl md:text-5xl font-bold font-heading text-white mb-6">{service.title}</h2>
+                            <p className="text-xl text-zinc-400 leading-relaxed max-w-lg">{service.description}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm uppercase tracking-widest text-zinc-500">
+                            <span>0{i + 1}</span>
+                            <span className="w-12 h-[1px] bg-zinc-700" />
+                            <span>Service</span>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
         </div>
-    );
+    )
 }
 
 export function Services() {
+    const container = useRef(null);
+    const scrollYProgress = useScroll({
+        target: container,
+        offset: ['start start', 'end end']
+    })
+
     return (
-        <section id="services" className="py-24 bg-black relative">
-            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
-
-            <div className="container mx-auto px-4 md:px-6 relative z-10">
-                <div className="mb-16 text-center max-w-3xl mx-auto">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="text-3xl md:text-5xl font-bold font-heading text-white mb-6"
-                    >
-                        Core Capabilities
-                    </motion.h2>
-                    <p className="text-zinc-400 text-lg">
-                        We leverage the latest technology stacks to build solutions that are not just functional, but exceptional.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {services.map((service, index) => (
-                        <ServiceCard key={index} service={service} />
-                    ))}
-                </div>
-            </div>
-        </section>
+        <div ref={container} className="relative mt-[20vh] mb-[20vh]">
+            {services.map((service, i) => {
+                const targetScale = 1 - ((services.length - i) * 0.05);
+                return <Card key={i} i={i} service={service} progress={scrollYProgress.scrollYProgress} range={[i * .25, 1]} targetScale={targetScale} />
+            })}
+        </div>
     );
 }

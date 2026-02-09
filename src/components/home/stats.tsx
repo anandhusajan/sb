@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, MotionValue } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 const stats = [
     { label: "Projects Shipped", value: 100, suffix: "+" },
@@ -10,54 +10,70 @@ const stats = [
     { label: "Years Excellence", value: 5, suffix: "+" },
 ];
 
-const Counter = ({ from, to, duration }: { from: number; to: number; duration: number }) => {
-    const [count, setCount] = useState(from);
+function Counter({ value, suffix }: { value: number | string; suffix: string }) {
+    const ref = useRef<HTMLSpanElement>(null);
+    const motionValue = useMotionValue(0);
+    const springValue = useSpring(motionValue, { damping: 50, stiffness: 200 });
+    const isInView = useRef(false);
 
     useEffect(() => {
-        let startTimestamp: number | null = null;
-        const step = (timestamp: number) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / (duration * 1000), 1);
-            setCount(Math.floor(progress * (to - from) + from));
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
-    }, [from, to, duration]);
+        const numericValue = typeof value === 'number' ? value : parseFloat(value as string);
+        if (isNaN(numericValue)) return;
 
-    return <>{count}</>;
-};
+        const unsubscribe = springValue.on("change", (latest) => {
+            if (ref.current) {
+                ref.current.textContent = latest.toFixed(value.toString().includes('.') ? 1 : 0);
+            }
+        });
+
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting && !isInView.current) {
+                isInView.current = true;
+                motionValue.set(numericValue);
+            }
+        });
+
+        if (ref.current) observer.observe(ref.current);
+
+        return () => {
+            unsubscribe();
+            observer.disconnect();
+        }
+    }, [value, motionValue, springValue]);
+
+    return <span className="inline-flex"><span ref={ref}>0</span>{suffix}</span>;
+}
+
+
+function StatItem({ stat, index, scrollYProgress }: { stat: { label: string, value: number | string, suffix: string }, index: number, scrollYProgress: MotionValue<number> }) {
+    const y = useTransform(scrollYProgress, [0, 1], [100 * (index % 2 === 0 ? 1 : -1), -100 * (index % 2 === 0 ? 1 : -1)]);
+
+    return (
+        <motion.div
+            style={{ y }}
+            className="flex flex-col items-center justify-center p-10 border border-white/10 bg-white/5 backdrop-blur-sm rounded-none hover:bg-white/10 transition-colors group relative"
+        >
+            <div className="absolute top-0 left-0 w-2 h-2 bg-primary group-hover:w-full transition-all duration-500 ease-out" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 bg-primary group-hover:w-full transition-all duration-500 ease-out" />
+
+            <h3 className="text-6xl md:text-7xl font-bold font-heading text-white mb-2 tracking-tighter">
+                <Counter value={stat.value} suffix={stat.suffix} />
+            </h3>
+            <p className="text-zinc-500 uppercase tracking-widest text-sm font-medium">{stat.label}</p>
+        </motion.div>
+    )
+}
 
 export function Stats() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start end", "end start"] });
+
     return (
-        <section className="relative py-24 bg-background overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-primary/20 rounded-full blur-[100px] -z-10" />
-
+        <section ref={containerRef} className="py-32 bg-black relative overflow-hidden">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {stats.map((stat, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1, duration: 0.5 }}
-                            className="relative group p-8 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md overflow-hidden hover:border-primary/50 transition-colors duration-500"
-                        >
-                            {/* Shimmer Effect */}
-                            <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/10 to-transparent z-0" />
-
-                            <div className="relative z-10 text-center">
-                                <h3 className="text-4xl md:text-5xl font-bold font-heading text-white mb-2 tracking-tight">
-                                    <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-                                        <Counter from={0} to={stat.value} duration={2} />{stat.suffix}
-                                    </span>
-                                </h3>
-                                <p className="text-sm font-medium text-zinc-400 uppercase tracking-widest">{stat.label}</p>
-                            </div>
-                        </motion.div>
+                        <StatItem key={index} stat={stat} index={index} scrollYProgress={scrollYProgress} />
                     ))}
                 </div>
             </div>

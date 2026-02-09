@@ -115,30 +115,58 @@
 }
 
 :root {
-  /* Cyber Dark Theme Default */
-  --background: #030712;
+  /* Bioluminescent Dark Theme */
+  --background: #000000;
+  /* Pure Black */
   --foreground: #ffffff;
 
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
+  --primary: #00ff9d;
+  /* Neon Mint/Lime */
+  --primary-foreground: #000000;
 
-  --secondary: #111827;
+  --secondary: #0a0a0a;
   --secondary-foreground: #ffffff;
 
-  --muted: #111827;
-  --muted-foreground: #9ca3af;
+  --muted: #0a0a0a;
+  --muted-foreground: #525252;
 
-  --accent: #1e293b;
+  --accent: #171717;
   --accent-foreground: #ffffff;
 
-  --destructive: #7f1d1d;
+  --destructive: #ff0055;
+  /* Neon Red */
   --destructive-foreground: #ffffff;
 
-  --border: #1f2937;
-  --input: #1f2937;
-  --ring: #6366f1;
+  --border: #262626;
+  --input: #262626;
+  --ring: #00ff9d;
 
-  --radius: 0.75rem;
+  --radius: 0rem;
+  /* Sharp edges */
+}
+
+@layer base {
+
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
 }
 
 @layer base {

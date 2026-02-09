@@ -1,99 +1,92 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { motion, useScroll, useMotionValue, useMotionValueEvent } from "framer-motion";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
-const navLinks = [
+const links = [
     { name: "Services", href: "#services" },
     { name: "About", href: "#about" },
     { name: "Contact", href: "#contact" },
 ];
 
-export function Navbar() {
-    const [scrolled, setScrolled] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+function MagneticLink({ children, href, className }: { children: React.ReactNode, href: string, className?: string }) {
+    const ref = useRef<HTMLAnchorElement>(null);
+    const position = { x: useMotionValue(0), y: useMotionValue(0) };
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    const handleMouse = (e: React.MouseEvent) => {
+        const { clientX, clientY } = e;
+        const { height, width, left, top } = ref.current!.getBoundingClientRect();
+        const middleX = clientX - (left + width / 2);
+        const middleY = clientY - (top + height / 2);
+        position.x.set(middleX * 0.5); // Magnetic strength
+        position.y.set(middleY * 0.5);
+    };
+
+    const reset = () => {
+        position.x.set(0);
+        position.y.set(0);
+    };
+
+    const { x, y } = position;
+    return (
+        <motion.div
+            style={{ x, y }}
+            transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+        >
+            <Link
+                ref={ref}
+                href={href}
+                onMouseMove={handleMouse}
+                onMouseLeave={reset}
+                className={className}
+            >
+                {children}
+            </Link>
+        </motion.div>
+    )
+}
+
+export function Navbar() {
+    const [hidden, setHidden] = useState(false);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        const previous = scrollY.getPrevious() ?? 0;
+        if (latest > previous && latest > 150) {
+            setHidden(true);
+        } else {
+            setHidden(false);
+        }
+    });
 
     return (
-        <header
-            className={cn(
-                "fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 w-[95%] md:w-fit rounded-full",
-                scrolled ? "bg-black/50 backdrop-blur-xl border border-white/10 shadow-lg shadow-black/20" : "bg-transparent border border-transparent"
-            )}
+        <motion.header
+            variants={{
+                visible: { y: 0 },
+                hidden: { y: "-100%" },
+            }}
+            animate={hidden ? "hidden" : "visible"}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 pointer-events-none"
         >
-            <div className="px-6 h-14 md:h-16 flex items-center justify-between gap-8">
-                {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 group">
-                    <span className="text-xl font-bold font-heading text-white tracking-tight group-hover:opacity-80 transition-opacity">
-                        Satbodha<span className="text-indigo-500">.</span>
-                    </span>
-                </Link>
+            <nav className="pointer-events-auto flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/10 rounded-full px-2 py-2 shadow-2xl">
+                <MagneticLink href="/" className="px-6 py-3 text-white font-bold font-heading rounded-full hover:bg-white/10 transition-colors">
+                    SB.
+                </MagneticLink>
 
-                {/* Desktop Nav */}
-                <nav className="hidden md:flex items-center gap-6">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-                        >
+                <div className="flex gap-1">
+                    {links.map((link) => (
+                        <MagneticLink key={link.name} href={link.href} className="px-5 py-3 text-zinc-400 hover:text-white text-sm font-medium rounded-full hover:bg-white/5 transition-colors">
                             {link.name}
-                        </Link>
+                        </MagneticLink>
                     ))}
-                </nav>
-
-                <div className="hidden md:block">
-                    <Button size="sm" className="rounded-full bg-white text-black hover:bg-zinc-200 text-xs font-semibold px-6" asChild>
-                        <Link href="#contact">Get Started</Link>
-                    </Button>
                 </div>
 
-                {/* Mobile Menu Toggle */}
-                <button
-                    className="md:hidden p-1 text-white"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                    aria-label="Toggle menu"
-                >
-                    {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
-            </div>
-
-            {/* Mobile Menu Overlay */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        className="absolute top-20 left-0 right-0 bg-black/90 backdrop-blur-xl border border-white/10 rounded-2xl p-4 md:hidden flex flex-col gap-4 shadow-2xl"
-                    >
-                        {navLinks.map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                className="text-base font-medium text-zinc-300 hover:text-white py-2 px-4 rounded-lg hover:bg-white/5 transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
-                        <Button className="w-full rounded-full bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setMobileMenuOpen(false)} asChild>
-                            <Link href="#contact">Get Started</Link>
-                        </Button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </header>
+                <MagneticLink href="#contact" className="ml-2 px-6 py-3 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 transition-colors text-sm">
+                    Let&apos;s Talk
+                </MagneticLink>
+            </nav>
+        </motion.header>
     );
 }

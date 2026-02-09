@@ -1,133 +1,97 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, PlayCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-function Spotlight({ className, fill = "white" }: { className?: string; fill?: string }) {
-    return (
-        <svg
-            className={cn(
-                "animate-spotlight pointer-events-none absolute z-[1]  h-[169%] w-[138%] lg:w-[84%] opacity-0",
-                className
-            )}
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 3787 2842"
-            fill="none"
-        >
-            <g filter="url(#filter)">
-                <ellipse
-                    cx="1924.71"
-                    cy="273.501"
-                    rx="1924.71"
-                    ry="273.501"
-                    transform="matrix(-0.822377 -0.568943 -0.568943 0.822377 3631.88 2291.09)"
-                    fill={fill}
-                    fillOpacity="0.21"
-                ></ellipse>
-            </g>
-            <defs>
-                <filter
-                    id="filter"
-                    x="0.860352"
-                    y="0.838989"
-                    width="3785.16"
-                    height="2840.26"
-                    filterUnits="userSpaceOnUse"
-                    colorInterpolationFilters="sRGB"
-                >
-                    <feFlood floodOpacity="0" result="BackgroundImageFix"></feFlood>
-                    <feBlend
-                        mode="normal"
-                        in="SourceGraphic"
-                        in2="BackgroundImageFix"
-                        result="shape"
-                    ></feBlend>
-                    <feGaussianBlur
-                        stdDeviation="151"
-                        result="effect1_foregroundBlur_1065_8"
-                    ></feGaussianBlur>
-                </filter>
-            </defs>
-        </svg>
-    );
-}
+import { ArrowRight, Play } from "lucide-react";
 
 export function Hero() {
+    const targetRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: targetRef,
+        offset: ["start start", "end start"],
+    });
+
+    const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+    const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]);
+    const y = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
+
     return (
-        <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-background/[0.96] antialiased bg-grid-white/[0.02]">
-            <Spotlight
-                className="-top-40 left-0 md:left-60 md:-top-20"
-                fill="white"
-            />
-            <div className="absolute inset-0 bg-background/90" /> {/* Dimmer */}
+        <section ref={targetRef} className="relative h-screen w-full overflow-hidden bg-black">
+            {/* 1. Aurora Background */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-black to-black animate-[spin_20s_linear_infinite] blur-[100px] opacity-60" />
+                <div className="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-purple-500/20 via-black to-black animate-[spin_15s_linear_infinite_reverse] blur-[100px] opacity-60" />
+                <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay" />
+            </div>
 
-            <div className="container relative z-10 px-4 md:px-6 flex flex-col items-center text-center">
+            <motion.div
+                style={{ opacity, scale, y }}
+                className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4"
+            >
+                {/* 2. Kinetic Typography Heading */}
+                <h1 className="text-[12vw] leading-[0.85] font-bold font-heading text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-400 to-zinc-800 tracking-tighter select-none">
+                    BUILDING
+                </h1>
+                <div className="flex items-center gap-4 md:gap-8 overflow-hidden">
+                    <motion.div
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "0%" }}
+                        transition={{ duration: 1.5, ease: "circOut" }}
+                        className="h-[2px] w-24 md:w-48 bg-gradient-to-r from-transparent to-primary"
+                    />
+                    <h1 className="text-[12vw] leading-[0.85] font-bold font-heading text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-400 to-zinc-800 tracking-tighter select-none italic pr-4">
+                        REALITY
+                    </h1>
+                    <motion.div
+                        initial={{ x: "100%" }}
+                        animate={{ x: "0%" }}
+                        transition={{ duration: 1.5, ease: "circOut" }}
+                        className="h-[2px] w-24 md:w-48 bg-gradient-to-l from-transparent to-primary"
+                    />
+                </div>
 
-                {/* Pill Badge */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-zinc-300 backdrop-blur-md"
-                >
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    <span>Innovating Education & Technology</span>
-                </motion.div>
-
-                {/* Main Heading */}
-                <motion.h1
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-5xl md:text-8xl font-bold font-heading tracking-tight text-white mb-8"
-                >
-                    Building Ideas <br />
-                    <span className="text-gradient-cyber text-glow">
-                        Into Reality
-                    </span>
-                </motion.h1>
-
-                {/* Subtext */}
+                {/* 3. Subtext & CTAs */}
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 leading-relaxed"
+                    transition={{ delay: 0.5 }}
+                    className="mt-12 text-zinc-400 text-lg md:text-xl max-w-2xl font-light tracking-wide"
                 >
-                    From concept to creation, we craft enterprise-grade software and transformative educational experiences that drive global progress.
+                    We engineer the digital future. Transforming abstract ideas into tangbile, high-impact software and educational ecosystems.
                 </motion.p>
 
-                {/* CTA Buttons */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                    className="flex flex-col sm:flex-row gap-6 items-center"
+                    transition={{ delay: 0.7 }}
+                    className="mt-10 flex gap-6"
                 >
-                    <Button size="lg" className="h-14 px-8 text-lg rounded-full bg-white text-black hover:bg-zinc-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105" asChild>
-                        <Link href="#contact">
-                            Get Started <ArrowRight className="ml-2 w-5 h-5" />
+                    <Button size="lg" className="rounded-full h-14 px-8 text-lg bg-white text-black hover:bg-zinc-200 transition-all hover:scale-105" asChild>
+                        <Link href="#contact" className="flex items-center gap-2">
+                            Start Project <ArrowRight className="w-5 h-5" />
                         </Link>
                     </Button>
-
-                    <Button size="lg" variant="ghost" className="h-14 px-8 text-lg rounded-full border border-white/10 text-white hover:bg-white/10 hover:text-white transition-all backdrop-blur-sm" asChild>
-                        <Link href="#services">
-                            <PlayCircle className="mr-2 w-5 h-5 text-indigo-400" /> Watch Showreel
+                    <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg border-white/20 text-white hover:bg-white/10 hover:border-white transition-all backdrop-blur-sm group" asChild>
+                        <Link href="#services" className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                                <Play className="w-4 h-4 fill-white" />
+                            </div>
+                            Showreel
                         </Link>
                     </Button>
                 </motion.div>
+            </motion.div>
 
-            </div>
-
-            {/* Background Grid/Beams effect (Simplified SVG Grid) */}
-            <div className="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-soft-light"></div>
+            {/* 4. Scroll Indicator */}
+            <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 text-zinc-500 text-sm tracking-widest uppercase"
+            >
+                Scroll to Explore
+            </motion.div>
         </section>
     );
 }
