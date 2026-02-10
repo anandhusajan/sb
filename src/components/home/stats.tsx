@@ -1,79 +1,69 @@
 "use client";
 
-import { motion, useScroll, useTransform, useMotionValue, useSpring, MotionValue } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 const stats = [
-    { label: "Projects Shipped", value: 100, suffix: "+" },
-    { label: "Happy Clients", value: 500, suffix: "+" },
-    { label: "Global Reach", value: 1.2, suffix: "M+" },
-    { label: "Years Excellence", value: 5, suffix: "+" },
+    { label: "Systems Online", value: 100, suffix: "%" },
+    { label: "Data Processed", value: 500, suffix: "TB" },
+    { label: "Global Nodes", value: 1.2, suffix: "K" },
+    { label: "Uptime", value: 99.9, suffix: "%" },
 ];
 
-function Counter({ value, suffix }: { value: number | string; suffix: string }) {
-    const ref = useRef<HTMLSpanElement>(null);
-    const motionValue = useMotionValue(0);
-    const springValue = useSpring(motionValue, { damping: 50, stiffness: 200 });
-    const isInView = useRef(false);
+function HolographicCard({ stat, index }: { stat: typeof stats[0], index: number }) {
+    const [random, setRandom] = useState(0);
 
     useEffect(() => {
-        const numericValue = typeof value === 'number' ? value : parseFloat(value as string);
-        if (isNaN(numericValue)) return;
-
-        const unsubscribe = springValue.on("change", (latest) => {
-            if (ref.current) {
-                ref.current.textContent = latest.toFixed(value.toString().includes('.') ? 1 : 0);
-            }
-        });
-
-        const observer = new IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting && !isInView.current) {
-                isInView.current = true;
-                motionValue.set(numericValue);
-            }
-        });
-
-        if (ref.current) observer.observe(ref.current);
-
-        return () => {
-            unsubscribe();
-            observer.disconnect();
-        }
-    }, [value, motionValue, springValue]);
-
-    return <span className="inline-flex"><span ref={ref}>0</span>{suffix}</span>;
-}
-
-
-function StatItem({ stat, index, scrollYProgress }: { stat: { label: string, value: number | string, suffix: string }, index: number, scrollYProgress: MotionValue<number> }) {
-    const y = useTransform(scrollYProgress, [0, 1], [100 * (index % 2 === 0 ? 1 : -1), -100 * (index % 2 === 0 ? 1 : -1)]);
+        const interval = setInterval(() => {
+            setRandom(Math.random());
+        }, 100 + index * 50);
+        return () => clearInterval(interval);
+    }, [index]);
 
     return (
         <motion.div
-            style={{ y }}
-            className="flex flex-col items-center justify-center p-10 border border-white/10 bg-white/5 backdrop-blur-sm rounded-none hover:bg-white/10 transition-colors group relative"
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 }}
+            className="relative group p-6 border border-primary/20 bg-black/40 backdrop-blur-md overflow-hidden rounded-xl h-full"
         >
-            <div className="absolute top-0 left-0 w-2 h-2 bg-primary group-hover:w-full transition-all duration-500 ease-out" />
-            <div className="absolute bottom-0 right-0 w-2 h-2 bg-primary group-hover:w-full transition-all duration-500 ease-out" />
+            {/* Scanline Effect */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgba(0,255,157,0.05)_50%)] bg-[length:100%_4px] pointer-events-none" />
 
-            <h3 className="text-6xl md:text-7xl font-bold font-heading text-white mb-2 tracking-tighter">
-                <Counter value={stat.value} suffix={stat.suffix} />
-            </h3>
-            <p className="text-zinc-500 uppercase tracking-widest text-sm font-medium">{stat.label}</p>
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-primary" />
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-primary" />
+
+            {/* Dynamic Background Pulse */}
+            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative z-10 flex flex-col items-center justify-center text-center h-full space-y-2">
+                <span className="text-xs font-mono text-primary/50 uppercase tracking-widest mb-2">
+                    SYS.STAT.0{index + 1}
+                </span>
+                <h3 className="text-5xl font-bold font-heading text-white tracking-widest drop-shadow-[0_0_10px_rgba(0,255,157,0.8)]">
+                    {stat.value}{stat.suffix}
+                </h3>
+                <p className="text-sm font-medium text-zinc-400 uppercase tracking-widest">{stat.label}</p>
+
+                {/* Decorator Binary */}
+                <div className="mt-4 text-[10px] text-primary/30 font-mono break-all w-full text-center leading-none opacity-50">
+                    {Array.from({ length: 40 }).map(() => (Math.random() > 0.5 ? 1 : 0)).join('')}
+                </div>
+            </div>
         </motion.div>
-    )
+    );
 }
 
 export function Stats() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start end", "end start"] });
-
     return (
-        <section ref={containerRef} className="py-32 bg-black relative overflow-hidden">
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="py-20 bg-black relative border-y border-white/5">
+            <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {stats.map((stat, index) => (
-                        <StatItem key={index} stat={stat} index={index} scrollYProgress={scrollYProgress} />
+                        <HolographicCard key={index} stat={stat} index={index} />
                     ))}
                 </div>
             </div>
